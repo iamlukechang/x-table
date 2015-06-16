@@ -1,0 +1,74 @@
+:host {
+  position: relative;
+  display: block;
+  /*border-collapse: separate;*/
+}
+
+:host::shadow *,
+::content * {
+  font-family: arial;
+}
+
+:host::shadow #toolGroup #addButton {
+  float: left;
+}
+
+:host::shadow > table {
+  border-spacing: 0;
+}
+
+:host::shadow > table thead tr th:first-of-type {
+  border-top-left-radius: 5px;
+}
+
+:host::shadow > table thead tr th:last-of-type {
+  border-top-right-radius: 5px;
+}
+
+:host::shadow > table tfoot tr td:last-of-type {
+  border-bottom-left-radius: 5px;
+}
+
+:host::shadow > table tfoot tr td:last-of-type {
+  border-bottom-right-radius: 5px;
+}
+
+:host::shadow #header,
+:host::shadow #footer {
+  height: 40px;
+}
+
+:host::shadow #header > th{
+  vertical-align: middle;
+}
+
+:host::shadow #header > .left-column,
+:host::shadow #header > .right-column {
+  min-width: 10px;
+}
+
+/* cards */
+/*
+:host(.x-table-cards) {
+  display: block;
+}
+
+:host(.x-table-cards)::shadow > thead,
+:host(.x-table-cards)::shadow > tbody,
+:host(.x-table-cards)::shadow > tfoot {
+  display: block;
+  width: 100%;
+}
+
+:host(.x-table-cards)::shadow tr,
+:host(.x-table-cards)::shadow td {
+  display: block;
+  list-style-type: none;
+}
+
+:host([ui=cards])::shadow tr.row > td {
+  display: list-item;
+}
+*/
+
+@import 'x-table-basic-theme.css';

@@ -1,0 +1,24 @@
+<polymer-element name="x-table-colgroup" attributes="cols" hidden>
+  <template>
+    <content id="cols" select="x-table-col"></content>
+  </template>
+  <script>
+    Polymer({
+      cols: [],
+      domReady: function () {
+        this.onMutation(this, this.childrenUpdated);
+        this.updateCols();
+      },
+
+      childrenUpdated: function (observer, mutations) {
+        this.updateCols();
+
+        this.onMutation(this, this.childrenUpdated);
+      },
+
+      updateCols: function () {
+        this.cols = Array.prototype.slice.call(this.$.cols.getDistributedNodes());
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,24 @@
+<polymer-element name="x-table-row-extension" attributes="row cols">
+  <template>
+    <style>
+      :host {
+        display: {{_extending ? 'table-row' : 'none'}};
+        height: 40px;
+      }
+    </style>
+    <td id="contentWrapper" colspan="{{cols.length + 2}}"></td>
+  </template>
+  <script>
+    Polymer({
+      _extending: true,
+      ready: function () {
+        if (this.$.content) {
+          this.$.contentWrapper.appendChild(this.$.content);
+        }
+      },
+      toggle: function () {
+        this._extending = !this._extending;
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,176 @@
+<link rel="import" href="../x-table-cell/x-table-cell.html" />
+<link rel="import" href="../x-table-row-extension/x-table-row-extension.html" />
+
+<polymer-element name="x-table-row" attributes="row cols editable extension add update remove handleError disabled">
+  <template>
+    <link rel="stylesheet" href="x-table-row.css"/>
+
+    <!--extension button-->
+    <td class="left-column" align="left">
+      <template if="{{extension}}">
+        <core-icon-button icon="{{'arrow-drop-' + (_extending ? 'up' : 'down')}}" title="{{'drop ' + (_extending ? 'up' : 'down')}}" on-tap="{{handleExtendButtonTap}}" disabled?="{{disabled && !_editing}}"></core-icon-button>
+      </template>
+    </td>
+
+    <!--cells-->
+    <template repeat="{{col in cols}}">
+      <x-table-cell col="{{col}}" row="{{row}}" editable="{{editable}}" isEditing="{{_editing}}"></x-table-cell>
+    </template>
+
+    <!--edit buttons-->
+    <td class="right-column" align="right">
+      <template if="{{editable}}">
+        <template if="{{!_editing}}">
+          <core-icon-button icon="create" title="edit" on-tap="{{handleEditButtonTap}}" disabled?="{{disabled && !_editing}}"></core-icon-button>
+          <core-icon-button icon="delete" title="delete" on-tap="{{handleDeleteButtonTap}}" disabled?="{{disabled && !_editing}}"></core-icon-button>
+        </template>
+        <template if="{{_editing}}">
+          <core-icon-button icon="save" title="save" on-tap="{{handleSaveButtonTap}}" disabled?="{{disabled && !_editing}}"></core-icon-button>
+          <core-icon-button icon="cancel" title="cancel" on-tap="{{handleCancelButtonTap}}" disabled?="{{disabled && !_editing}}"></core-icon-button>
+        </template>
+      </template>
+    </td>
+  </template>
+  <script>
+    (function () {
+      Polymer({
+        _isNew: false,
+
+        editable: false,
+        _editing: false,
+
+        disabled: false,
+
+        extension: null,
+        extensionElem: null,
+        _extending: false,
+
+        confirmDeleteMessage: 'Are you sure you want to delete this row?',
+
+        rowChanged: function () {
+        },
+
+        /**
+         * Update data 
+         *
+         * Customizable method
+         *
+         * @param {object} data
+         * @return {promise} An instance of Promise
+         */
+        update: null,
+
+        /**
+         * Remove this element self
+         *
+         * Customizable method
+         */
+        remove: null,
+
+        /**
+         * Handle error
+         *
+         * Customizable method
+         *
+         * @param {error} err
+         */
+        handleError: function (err) {
+          throw err;
+        },
+
+        handleExtendButtonTap: function () {
+          this._extending = !this._extending;
+
+          if (this.extensionElem) {
+            this.extensionElem.toggle();
+          } else {
+            this.createExtension(this.row);
+          }
+        },
+
+        handleEditButtonTap: function () {
+          this.startEditing();
+        },
+
+        handleSaveButtonTap: function () {
+          if (this._isNew) {
+            this.add(this.row).then(function (rst) {
+              if (rst.constructor === Error) {
+                this.handleCancelButtonTap();
+                this.handleError(rst);
+              } else {
+                this.row = rst;
+                this._isNew = false;
+                this.doneEditing();
+              }
+            }.bind(this));
+          } else {
+            this.update(this.row).then(function (data) {
+              if (data) this.row = data;
+
+              this.doneEditing();
+            }.bind(this), function (err) {
+              this.handleError(err);
+
+              this.undoEditing();
+              this.doneEditing();
+            }.bind(this));
+          }
+        },
+
+        handleCancelButtonTap: function () {
+          if (this._isNew) this.remove(this.row, true);
+
+          this.undoEditing();
+          this.doneEditing();
+        },
+
+        handleDeleteButtonTap: function () {
+          if (confirm(this.confirmDeleteMessage)) {
+            this.remove(this.row);
+          }
+        },
+
+        startEditing: function () {
+          this._cacheOnEditing = Polymer.mixin({}, this.row);
+          this.disabled = true;
+
+          this._editing = true;
+        },
+
+        undoEditing: function () {
+          this.row = Polymer.mixin({}, this._cacheOnEditing);
+        },
+
+        doneEditing: function () {
+          delete this._cacheOnEditing;
+          this.disabled = false;
+
+          this._editing = false;
+        },
+
+        createExtension: function (row) {
+          this.extensionElem = document.createElement(this.extension);
+          this.extensionElem.bind('cols', new PathObserver(this, 'cols'));
+          this.extensionElem.bind('row', new PathObserver(this, 'row'));
+
+          this.parentElement.insertBefore(this.extensionElem, this.nextSibling);
+        },
+
+        disabledChanged: function (oldVal, newVal) {
+          if (!this._editing) {
+            if (newVal) {
+              this.classList.add('disabled');
+            }else {
+              this.classList.remove('disabled');
+            }
+          }
+        },
+
+        setToNew: function () {
+          this._isNew = true;
+        }
+      });
+    })();
+  </script>
+</polymer-element>

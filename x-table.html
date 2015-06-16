@@ -1,0 +1,235 @@
+<!--
+
+<x-table></x-table>
+
+TODO: drag and drop ui, animation, mobile style, data type: date
+
+@author iamlukechang@gmail.com (Luke Chang)
+-->
+
+<!--bower components-->
+<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../core-icon-button/core-icon-button.html" />
+<link rel="import" href="../core-selector/core-selector.html" />
+<link rel="import" href="../paper-shadow/paper-shadow.html" />
+<link rel="import" href="../x-pagination/x-pagination.html" />
+
+<!--x table components-->
+<link rel="import" href="components/x-table-col/x-table-col.html" />
+<link rel="import" href="components/x-table-row/x-table-row.html" />
+<link rel="import" href="components/x-table-toolbar/x-table-toolbar.html" />
+<link rel="import" href="components/x-table-tool/x-table-tool.html" />
+<link rel="import" href="components/x-table-tool/x-table-filter.html" />
+<link rel="import" href="components/x-table-tool/x-table-sort.html" />
+
+<polymer-element name="x-table" attributes="rows editable handleError pageSize rowExtension filter sort pagination">
+  <template>
+    <link rel="stylesheet" href="x-table.css">
+
+    <content id="colGroup" select="x-table-col"></content>
+
+    <div id="toolGroup">
+      <template if="{{editable}}">
+        <core-icon-button id="addButton" icon="add" title="add" on-click="{{handleInsertRow}}" disabled?="{{disabled}}"></core-icon-button>
+      </template>
+
+      <!--tool bar-->
+      <x-table-toolbar id="toolbar" input="{{rows}}" output="{{presentRows}}" conf="{{cols}}" horizontal end-justified layout>
+        <content id="tools" select=".x-table-tool"></content>
+        <x-table-filter icon="filter-list" title="filter" hidden?="{{!filter}}" disabled="{{disabled}}"></x-table-filter>
+        <x-table-sort icon="sort" title="sort" hidden?="{{!sort}}" disabled="{{disabled}}"></x-table-sort>
+      </x-table-toolbar>
+    </div>
+
+    <table width="100%">
+      <thead>
+        <tr id="header">
+          <th class="left-column" align="left"></th>
+
+          <!--columns-->
+          <template repeat="{{col in cols}}">
+            <th align="left" width="{{col.width}}">
+              <span>{{col.title || col.name}}</span>
+            </th>
+          </template>
+
+          <th class="right-column" align="right"></th>
+        </tr>
+      </thead>
+
+      <tbody id="rowGroup">
+        <!--rows-->
+        <template repeat="{{row, rn in paginatedRows}}">
+          <x-table-row row="{{row}}" cols="{{cols}}" add="{{addFunctor}}" update="{{updateFunctor}}" remove="{{removeFunctor}}" editable="{{editable}}" extension="{{rowExtension}}" disabled="{{disabled}}"></x-table-row>
+        </template>
+      </tbody>
+
+      <tfoot>
+        <tr id="footer">
+          <td colspan="{{cols.length + 2}}" align="center">
+            <!--pagination-->
+            <x-pagination attachedArray="{{presentRows}}" paginatedArray="{{paginatedRows}}" pageSize="{{pagination ? pageSize : 0}}" hidden?={{!pagination}} disabled="{{disabled}}"></x-pagination>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </template>
+  <script>
+    (function () {
+      Polymer({
+        filter: true,
+        sort: true,
+        pagination: true,
+
+        editable: false,
+
+        disabled: false,
+
+        pageSize: 20,
+
+        cols: [],
+
+        rows: [],
+        rowProto: {},
+        currentRowId: 0,
+
+        ready: function () {
+          this.addFunctor = this.add.bind(this);
+          this.updateFunctor = this.update.bind(this);
+          this.removeFunctor = this.remove.bind(this);
+        },
+
+        domReady: function () {
+          this.onMutation(this, this.childrenUpdated);
+
+          this.updateCols();
+
+          // load rows
+          this.refresh();
+        },
+
+        childrenUpdated: function (observer, mutations) {
+          this.updateCols();
+
+          this.onMutation(this, this.childrenUpdated);
+        },
+
+        updateCols: function () {
+          this.cols = Array.prototype.slice.call(this.$.colGroup.getDistributedNodes());
+        },
+
+        refresh: function () {
+          if (typeof this.loadRows === 'function') {
+            this.loadRows().then(function (rows) {
+              this.rows = rows;
+            }.bind(this), this.handleError);
+          }
+        },
+
+        getRow: function (id) {
+          for (var i = 0; i < this.rows.length; i++) {
+            if (this.rows[i].id == id) return this.rows[i];
+          }
+
+          return null;
+        },
+
+        /**
+         * function (rows) {return new Promise}
+         */
+        loadRows: null,
+        addRow: null,
+        updateRow: null,
+        removeRow: null,
+        
+
+        rowsChanged: function (oldVal, newVal) {
+          if (typeof newVal === 'undefined' || !Array.isArray(newVal)) return;
+
+          if (typeof newVal[0].id === 'undefined') {
+            for (var i = 0; i < newVal.length; i++) {
+              var row = newVal[i];
+
+              this.currentRowId = Math.max(this.currentRowId, row.id = i);
+            }
+          }
+        },
+
+        add: function (row) {
+          if (typeof this.addRow === 'function') {
+            return this.addRow(row).then(function (row) {
+              if (row.id) {
+                this.currentRowId = Math.max(this.currentRowId, row.id);
+              } else {
+                row.id = ++this.currentRowId;
+              }
+
+              // TODO: the new added row might not be in the paginated rows,
+              // think about if it's needed
+              this.rows.unshift(row);
+              return row; 
+            }.bind(this), function (err) {
+              err = (err.constructor === Error) ? err : new Error(err);
+
+              return err;
+            });
+          } else {
+            return new Promise(function (resolve, reject) {
+              this.rows.unshift(row);
+              resolve(row);
+            });
+          }
+        },
+
+        update: function (row) {
+          if (typeof this.updateRow === 'function') {
+            return this.updateRow(row);
+          } else {
+            return new Promise(function (resolve, reject) {
+              resolve(row);
+            });
+          }
+        },
+
+        remove: function (row, locally) {
+          if (typeof this.removeRow === 'function' && !locally) {
+            this.removeRow(row).then(function () {
+              this.withdraw(row);
+            }.bind(this), this.handleError);
+          } else {
+            this.withdraw(row);
+          }
+        },
+
+        withdraw: function (row) {
+          this.rows.splice(this.rows.indexOf(row), 1);
+        },
+
+        create: function (row) {
+          row = Polymer.mixin({}, this.rowProto, row);
+
+          this.paginatedRows.unshift(row);
+        },
+
+        handleError: function (err) {
+          throw err;
+        },
+
+        handleInsertRow: function () {
+          this.onMutation(this.$.rowGroup, function (observer, mutation) {
+            // Note: this is assuming this callback will be triggered by the this.create later
+            var rowElem = mutation[0].addedNodes[1];
+
+            rowElem.setToNew();
+            rowElem.startEditing();
+          });
+
+          var currentTool = this.$.toolbar.currentTool;
+          if (currentTool) currentTool.close();
+
+          this.create();
+        }
+      });
+    })();
+  </script>
+</polymer-element>

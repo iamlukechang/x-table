@@ -1,0 +1,42 @@
+<link rel="import" href="../../../x-input/x-input.html" />
+<link rel="import" href="../x-table-cell-content/x-table-cell-content.html" />
+
+<polymer-element name="x-table-cell" attributes="row col editable isEditing">
+  <template>
+    <style>
+      :host {
+        display: table-cell;
+        color: rgb(84, 84, 84);
+        font-size: 12px;
+      }
+    </style>
+
+    <template if="{{col.cellElem}}">
+      <div id="contentWrapper"></div>
+    </template>
+
+    <template if="{{!col.cellElem}}">
+      <template if="{{editable && col.editable}}">
+        <x-input value="{{row[col.name]}}" type="{{col.inputType}}" aliases="{{col.aliases}}" disabled="{{!isEditing}}"></x-input>
+      </template>
+      <template if="{{!editable || !col.editable}}">
+        <div>{{row[col.name]}}</div>
+      </template>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      colChanged: function (oldVal, newVal) {
+        if (newVal && newVal.cellElem)
+            this.injectBoundHTML(
+                '<' + newVal.cellElem +
+                    ' row="{{row}}"' +
+                    ' col="{{col}}"' +
+                    ' editable="{{editable}}"' +
+                    ' isEditing="{{isEditing}}">' +
+                    '</' + newVal.cellElem + '>',
+                this.$.contentWrapper);
+      }
+    });
+  </script>
+</polymer-element>

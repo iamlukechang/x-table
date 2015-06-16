@@ -1,0 +1,19 @@
+<polymer-element name="x-table-col" attributes="title name dataType inputType editable sortabled dataTarget aliases cellElem width" hidden>
+  <script>
+    Polymer({
+      dataType: 'string',
+      inputType: 'text',
+      editable: true,
+      sortable: true,
+      aliases: [],
+      cellElem: null,
+
+      // TODO: rewrite this temporary solution
+      ready: function (oldVal, newVal) {
+        this.target = (typeof newVal !== 'string') ?
+            [this.name] :
+            newVal.split(' ');
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,9 @@
+<link rel="import" href="x-table-tool.html" />
+<link rel="import" href="../../../x-sort/x-sort.html" />
+
+<polymer-element name="x-table-sort" extends="x-table-tool" noscript>
+  <template>
+    <shadow></shadow>
+    <x-sort id="tool" sortOptions="{{conf}}" attachedArray="{{input}}" sortedArray="{{output}}"></x-filter>
+  </template>
+</polymer-element>

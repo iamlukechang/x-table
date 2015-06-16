@@ -1,0 +1,14 @@
+<link rel="import" href="x-table-tool.html" />
+<link rel="import" href="../../../x-filter/x-filter.html" />
+
+<polymer-element name="x-table-filter" extends="x-table-tool" noscript>
+  <template>
+    <shadow></shadow>
+    <style>
+      :host::shadow x-filter::shadow li {
+        min-width: 260px;
+      }
+    </style>
+    <x-filter id="tool" filterOptions="{{conf}}" attachedArray="{{input}}" filteredArray="{{output}}"></x-filter>
+  </template>
+</polymer-element>

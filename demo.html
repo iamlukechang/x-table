@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X Table Demo</title>
+  <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <link rel="import" href="x-table.html" />
+</head>
+<body>
+  <script>
+    mockApi = function (opts, next, handleError) {
+      var xhr = new XMLHttpRequest;
+      xhr.open('GET', 'demo.json');
+      xhr.onload = function () {
+        next(JSON.parse(this.response));
+      };
+      xhr.send();
+    };
+  </script>
+
+  <polymer-element name="demo-custom-cell" extends="x-table-cell-content" noscript>
+    <template>
+      <shadow></shadow>
+      <template if="{{!isEditing}}">
+        <a href="{{row.url}}" >{{row.foo}}</a>
+      </template>
+      <template if="{{isEditing}}">
+        <input value="{{row.url}}" />
+      </template>
+    </template>
+  </polymer-element>
+
+  <polymer-element name="demo-subtable" extends="x-table-row-extension" noscript>
+    <template>
+      <shadow></shadow>
+      <style>
+        :host {
+          background: #ccc;
+        }
+
+        :host::shadow #content {
+          margin: 10px;
+          background: #fff;
+        }
+      </style>
+      <x-table id="content" filter="false" sort="false" pagination="false" rows="{{row.detail}}">
+        <x-table-col name="baz" dataType="string"></x-table-col>
+      </x-table>
+    </template>
+  </polymer-element>
+
+  <polymer-element name="demo-table" extends="x-table">
+    <template>
+      <shadow></shadow>
+    </template>
+    <script>
+      Polymer({
+        //rowProto: {foo: 'new foo', detail: [{baz: 'new baz'}]},
+        loadRows: function () {
+          return new Promise(function (resolve, reject) {
+            mockApi({}, resolve, reject);
+          });
+        },
+
+        addRow: function (row) {
+          return new Promise(function (resolve, reject) {
+            console.log('add', row);
+            resolve(row);
+          });
+        },
+
+        updateRow: function (row) {
+          return new Promise(function (resolve, reject) {
+            console.log('update', row);
+            resolve(row);
+          });
+        },
+
+        removeRow: function (row) {
+          return new Promise(function (resolve, reject) {
+            resolve();
+          });
+        }
+      });
+    </script>
+  </polymer-element>
+
+  <demo-table pageSize="8" rowExtension="demo-subtable" editable="true">
+    <x-table-col name="id" dataType="number" editable="false" width="50"></x-table-col>
+    <x-table-col name="foo" cellElem="demo-custom-cell"></x-table-col>
+    <x-table-col name="bar" inputType="select" aliases='[{"name": "ice cream", "value": "gelato"}, {"name": "apple", "value": "babble"}]' sortable="false"></x-table-col>
+    <x-table-col name="num" title="number" inputType="number" dataType="number"></x-table-col>
+    <x-table-col name="bool" title="check" inputType="checkbox" dataType="boolean"></x-table-col>
+  </demo-table>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<polymer-element name="x-table-toolbar" attributes="input output conf">
+  <template>
+    <content id="tools" select=".x-table-tool"></content>
+  </template>
+  <script>
+    Polymer({
+      outputObserver: null,
+      currentTool: null,
+
+      created: function () {
+        this.notifyToolBarFunctor = function (notifier, opening) {
+          if (this.currentTool !== notifier && opening) {
+            if (this.currentTool) this.currentTool.close(); 
+            this.currentTool = notifier;
+          } else if (this.currentTool === notifier && !opening){
+            this.currentTool = null;
+          }
+        }.bind(this);
+      },
+
+      ready: function () {
+        var toolNodes = this.$.tools.getDistributedNodes();
+        this.firstToolNode = toolNodes[0];
+        this.lastToolNode = toolNodes[toolNodes.length - 1];
+
+        this.linkAllToolNodes(toolNodes);
+
+        this.observerToolNodeOutput(this.lastToolNode);
+
+        this.onMutation(this, this.childrenUpdated);
+      },
+
+      observerToolNodeOutput: function (toolNode) {
+        this.outputObserver = new PathObserver(this.lastToolNode, 'output');
+        this.outputObserver.open(function (newVal) {
+          this.output = newVal;
+        }.bind(this));
+      },
+
+      inputChanged: function (oldVal, newVal) {
+        if (Array.isArray(newVal)) this.firstToolNode.input = newVal;
+      },
+
+      linkAllToolNodes: function (toolNodes) {
+        var len = toolNodes.length;
+
+        for (var i = 0; i < len; i++) {
+          var toolNode = toolNodes[i],
+              nextToolNode = toolNodes[i + 1] || null;
+
+          toolNode.bind('conf', new PathObserver(this, 'conf'));
+          toolNode.notifyToolBar = this.notifyToolBarFunctor;
+
+          if (nextToolNode) {
+            toolNode.nextToolNode = nextToolNode;
+            nextToolNode.prevToolNode = toolNode;
+          }
+        }
+      },
+
+      childrenUpdated: function (observer, mutations) {
+        //TODO: add or remove
+        this.onMutation(this, this.childrenUpdated);
+      }
+    });
+  </script>
+</polymer-element>

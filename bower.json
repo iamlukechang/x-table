@@ -1,0 +1,28 @@
+{
+  "name": "x-table",
+  "version": "0.0.0",
+  "authors": [
+    "Luke Chang <iamlukechang@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#~0.5",
+    "core-icon-button": "Polymer/core-icon-button#~0.5",
+    "core-selector": "Polymer/core-selector#~0.5",
+    "paper-shadow": "Polymer/paper-shadow#~0.5",
+    "x-filter": "https://github.com/iamlukechang/x-filter.git",
+    "x-sort": "https://github.com/iamlukechang/x-sort.git",
+    "x-input": "https://github.com/iamlukechang/x-input.git",
+    "x-pagination": "https://github.com/iamlukechang/x-pagination.git"
+  },
+  "devDependencies": {
+    "core-media-query": "Polymer/core-media-query#~0.5"
+  }
+}

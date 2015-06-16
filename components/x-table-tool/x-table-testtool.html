@@ -1,0 +1,17 @@
+<link rel="import" href="x-table-tool.html" />
+
+<polymer-element name="x-table-testtool" extends="x-table-tool">
+  <template>
+    <shadow></shadow>
+    <div id="tool"></div>
+  </template>
+  <script>
+    Polymer({
+      inputChanged: function (oldVal, newVal) {
+        this.output = newVal.slice();
+        this.output.reverse();
+      }
+
+    });
+  </script>
+</polymer-element>

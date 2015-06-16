@@ -1,0 +1,23 @@
+<polymer-element name="x-table-cell-content" attributes="row col editable isEditing" noscript>
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+      }
+
+      :host > #overlayMask {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: -1;
+      }
+
+      :host-context(.disabled) > #overlayMask {
+        z-index: 9999;
+      }
+    </style>
+
+    <div id="overlayMask"></div>
+  </template>
+</polymer-element>

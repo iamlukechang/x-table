@@ -1,0 +1,66 @@
+<polymer-element name="x-table-tool" attributes="icon title conf input output disabled" class="x-table-tool">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host::shadow #toolBox {
+        position: absolute;
+        top: 55px;
+        right: 5px;
+        text-align: left;
+        z-index: 99;
+        background: #fff;
+        color: #000;
+      }
+    </style>
+    <core-icon-button icon="{{icon}}" title="{{title}}" on-click="{{toggle}}" disabled?="{{disabled}}" relative></core-icon-button>
+    <paper-shadow id="toolBox" hidden?="{{!_toolBoxShowing}}"></paper-shadow>
+  </template>
+  <script>
+    Polymer({
+      _toolBoxShowing: false,
+
+      input: [],
+      output: [],
+      prevToolNode: null,
+      nextToolNode: null,
+
+      notifyToolBar: null,
+
+      ready: function () {
+        if (this.$.tool) {
+          this.$.toolBox.appendChild(this.$.tool);
+        } else {
+          this.style.display = 'none';
+        }
+      },
+
+      outputChanged: function (oldVal, newVal) {
+        if (this.nextToolNode) this.nextToolNode.input = newVal;
+      },
+
+      nextToolNodeChanged: function (oldVal, newVal) {
+        // bind next input to this output
+        newVal.input = this.output;
+      },
+
+      _toolBoxShowingChanged: function (oldVal, newVal) {
+        if (typeof this.notifyToolBar === 'function') this.notifyToolBar(this, newVal);
+      },
+
+      toggle: function () {
+        this._toolBoxShowing = !this._toolBoxShowing;
+      },
+
+      close: function () {
+        this._toolBoxShowing = false;
+      },
+
+      open: function () {
+        this._toolBoxShowing = true; 
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,51 @@
+:host::shadow #header,
+:host::shadow #footer {
+  background: #000;
+  color: #fff;
+}
+
+:host::shadow > table thead > #header core-icon-button:active:not([disabled]) {
+  background-color: #3e3e3e;
+}
+
+:host::shadow > table thead .headerItemBox x-filter /deep/ li {
+  border-top: 1px solid #ccc;
+}
+
+:host::shadow > table thead .headerItemBox x-filter /deep/ li.fixed {
+  background: #aaa;
+}
+
+:host::shadow > table tbody .row {
+  background: #fff;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+}
+
+:host::shadow > table tbody > .row > td {
+  border-top: 1px solid #e8e8e8;
+}
+
+:host::shadow > table tbody .extension {
+  background: #aaa;
+  border: 1px solid #ccc;
+}
+
+/* cards */
+/*
+:host(.x-table-cards)::shadow > tbody > .row > td {
+  border-top: none;
+}
+
+:host(.x-table-cards)::shadow > thead .headerItemBox core-selector > div {
+  height: 42px;
+  line-height: 42px;
+  border-top: 1px solid #ccc;
+  padding: 5px 35px;
+}
+
+:host(.x-table-cards)::shadow > thead .headerItemBox core-selector > div.core-selected {
+  background: #aaa;
+}
+*/
+
