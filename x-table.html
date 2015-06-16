@@ -191,18 +191,22 @@ TODO: drag and drop ui, animation, mobile style, data type: date
           }
         },
 
-        remove: function (row, locally) {
-          if (typeof this.removeRow === 'function' && !locally) {
+        remove: function (row, isNewRowUi) {
+          if (typeof this.removeRow === 'function' && !isNewRowUi) {
             this.removeRow(row).then(function () {
               this.withdraw(row);
             }.bind(this), this.handleError);
           } else {
-            this.withdraw(row);
+            this.withdraw(row, isNewRowUi);
           }
         },
 
-        withdraw: function (row) {
-          this.rows.splice(this.rows.indexOf(row), 1);
+        withdraw: function (row, isNewRowUi) {
+          if (isNewRowUi) {
+            this.paginatedRows.splice(0, 1);
+          } else {
+            this.rows.splice(this.rows.indexOf(row), 1);
+          }
         },
 
         create: function (row) {
